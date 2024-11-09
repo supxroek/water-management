@@ -99,6 +99,12 @@ export default function Dashboard() {
     };
 
     fetchData();
+
+    // Set interval for fetching data every 1 minute (60000ms)
+    const intervalId = setInterval(fetchData, 30000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   if (loading) {
