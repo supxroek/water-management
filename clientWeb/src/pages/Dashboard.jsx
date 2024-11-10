@@ -59,21 +59,21 @@ export default function Dashboard() {
           }),
         ]);
 
-        // แปลงข้อมูลที่ได้เป็นออบเจ็กต์ที่มีคีย์ชัดเจน
+        // แปลงข้อมูลให้ตรงกับโครงสร้าง JSON ที่ได้รับ
         const formattedLogs = userLogsResponse.data.map((log) => ({
-          id: log[0],
-          userId: log[1],
-          username: log[2],
-          action: log[3],
-          date: new Date(log[4]),
-          role: log[5],
+          id: log.log_id,
+          userId: log.userlog_id,
+          username: log.username,
+          action: log.action,
+          date: new Date(log.action_time),
+          role: log.role,
         }));
 
         // จัดเรียงข้อมูลจากวันที่ล่าสุดไปหาก่อน
         formattedLogs.sort((a, b) => b.date - a.date);
 
         // กำหนดข้อมูลใหม่ให้กับ chartData
-        const userCount = userCountResponse.data[0];
+        const userCount = parseInt(userCountResponse.data.count, 10); // แปลงค่าเป็นตัวเลข
         setChartData({
           labels: ["วันนี้"], // คุณสามารถปรับช่วงเวลาเป็นวันที่ต่าง ๆ ได้
           datasets: [
@@ -101,7 +101,7 @@ export default function Dashboard() {
     fetchData();
 
     // Set interval for fetching data every 1 minute (60000ms)
-    const intervalId = setInterval(fetchData, 30000);
+    const intervalId = setInterval(fetchData, 600000);
 
     // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
@@ -116,71 +116,84 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      {/* รายละเอียดผู้ใช้งาน */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-700">จำนวนผู้ใช้</h2>
-        <p className="text-4xl font-bold text-indigo-600">{totalUsers}</p>
+    <>
+      <div className="flex-grow p-4">
+        <h1 className="text-3xl font-semibold text-gray-800">Manage Users</h1>
+        <p className="mt-2 text-sm text-gray-500">
+          Welcome to the manage users page! You are an admin.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+        {/* รายละเอียดผู้ใช้งาน */}
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-700">จำนวนผู้ใช้</h2>
+          <p className="text-4xl font-bold text-indigo-600">{totalUsers}</p>
 
-        {/* กราฟแสดงจำนวนผู้ใช้ */}
-        <div className="mt-4">
-          <Line data={chartData} />
+          {/* กราฟแสดงจำนวนผู้ใช้ */}
+          <div className="mt-4">
+            <Line data={chartData} />
+          </div>
+        </div>
+
+        {/* รายละเอียดการใช้น้ำ */}
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-700">
+            ยอดการใช้น้ำรวม (หน่วย)
+          </h2>
+          <p className="text-4xl font-bold text-indigo-600">8,920</p>
+        </div>
+
+        {/* ยอดค้างชำระ */}
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-700">
+            ยอดค้างชำระ (บาท)
+          </h2>
+          <p className="text-4xl font-bold text-indigo-600">4,500</p>
+        </div>
+
+        {/* ตารางแสดงรายการ userLog */}
+        <div className="col-span-1 md:col-span-3 bg-white shadow-lg rounded-lg p-6">
+          <table className="min-w-full table-auto">
+            <thead className="border-l-indigo-50">
+              <tr>
+                <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
+                  ผู้ใช้
+                </th>
+                <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
+                  วันที่
+                </th>
+                <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
+                  การกระทำ
+                </th>
+                <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
+                  บทบาท
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {userLogs.map((log, index) => (
+                <tr
+                  key={log.id || index}
+                  className="border-b hover:bg-gray-100"
+                >
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {log.username}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {log.date.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {log.action}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    {log.role}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      {/* รายละเอียดการใช้น้ำ */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-700">
-          ยอดการใช้น้ำรวม (หน่วย)
-        </h2>
-        <p className="text-4xl font-bold text-indigo-600">8,920</p>
-      </div>
-
-      {/* ยอดค้างชำระ */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-700">
-          ยอดค้างชำระ (บาท)
-        </h2>
-        <p className="text-4xl font-bold text-indigo-600">4,500</p>
-      </div>
-
-      {/* ตารางแสดงรายการ userLog */}
-      <div className="col-span-1 md:col-span-3 bg-white shadow-lg rounded-lg p-6">
-        <table className="min-w-full table-auto">
-          <thead className="border-l-indigo-50">
-            <tr>
-              <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
-                ผู้ใช้
-              </th>
-              <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
-                วันที่
-              </th>
-              <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
-                การกระทำ
-              </th>
-              <th className="px-4 py-2 text-left text-xl font-semibold text-gray-700">
-                บทบาท
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {userLogs.map((log) => (
-              <tr key={log.id} className="border-b hover:bg-gray-100">
-                <td className="px-4 py-2 text-sm text-gray-700">
-                  {log.username}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-700">
-                  {log.date.toLocaleString()}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-700">
-                  {log.action}
-                </td>
-                <td className="px-4 py-2 text-sm text-gray-700">{log.role}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </>
   );
 }

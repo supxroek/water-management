@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import api from "../services/api";
@@ -51,6 +51,24 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    const checkToken = () => {
+      // ตรวจสอบว่ามี token ใน sessionStorage หรือไม่ ถ้ามีให้ลบออก เมื่อผ่านระยะเวลาที่กำหนด
+      if (sessionStorage.getItem("token") || localStorage.getItem("token")) {
+        sessionStorage.removeItem("token");
+        localStorage.removeItem("token");
+      }
+    };
+
+    checkToken();
+
+    // Set interval for fetching data every 1 minute (60000ms)
+    const intervalId = setInterval(checkToken, 50000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <>
       <ToastContainer />
@@ -58,8 +76,8 @@ export default function Login() {
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md transform transition-all duration-500 hover:scale-105">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <img
-              alt="Your Company"
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
+              src="/src/assets/logo.png"
+              alt="Logo"
               className="mx-auto h-10 w-auto"
             />
             <h2 className="mt-6 mb-6 text-center text-2xl font-bold tracking-tight text-gray-900">
@@ -71,7 +89,7 @@ export default function Login() {
             <div>
               <label className="block text-gray-600">Email</label>
               <input
-                type="ID"
+                type=""
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300"

@@ -16,14 +16,6 @@ router.post("/login", adminController.loginAdmin);
 // Logout an admin
 router.post("/logout", adminController.logoutAdmin);
 
-// Read all users
-router.get(
-  "/getUsers",
-  authenticateToken,
-  authorizeRole("admin"),
-  adminController.readAllUsers
-);
-
 // Read a user count
 router.get(
   "/getUserCount",
@@ -38,22 +30,6 @@ router.get(
   authenticateToken,
   authorizeRole("admin"),
   adminController.readUserlogs
-);
-
-// Update a user
-router.put(
-  "/user/:userId",
-  authenticateToken,
-  authorizeRole("admin"),
-  adminController.updateUser
-);
-
-// Delete a user
-router.delete(
-  "/user/:userId",
-  authenticateToken,
-  authorizeRole("admin"),
-  adminController.deleteUser
 );
 
 module.exports = router;

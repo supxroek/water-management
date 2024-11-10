@@ -1,19 +1,22 @@
-const oracledb = require("oracledb");
+// db.js
+const { Pool } = require("pg");
 require("dotenv").config();
 
-oracledb.initOracleClient(); // ระบุ path ไปยัง Oracle Client หากจำเป็น
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
 
 const connectDB = async () => {
   try {
-    const connection = await oracledb.getConnection({
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      connectString: process.env.DB_CONNECT_STRING,
-    });
-    console.log("Connected to Oracle Database");
-    return connection;
+    const client = await pool.connect();
+    console.log("Connected to PostgreSQL Database");
+    return client;
   } catch (err) {
-    console.error("Error connecting to Oracle Database:", err);
+    console.error("Error connecting to PostgreSQL Database:", err);
     process.exit(1);
   }
 };

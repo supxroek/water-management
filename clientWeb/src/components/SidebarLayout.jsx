@@ -16,7 +16,8 @@ export default function SidebarLayout() {
       // ส่ง token ไปยัง API เพื่อบันทึกการ logout
       await api.post("/logout", { token });
 
-      // ลบ token ออกจาก localStorage
+      // ลบ token ออกจาก sessionStorage และ localStorage
+      sessionStorage.removeItem("token");
       localStorage.removeItem("token");
 
       // เปลี่ยนเส้นทางไปยังหน้า login
